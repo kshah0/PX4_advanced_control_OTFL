@@ -1,0 +1,1 @@
+rosservice call /gazebo/apply_body_wrench "{body_name: "iris::base_link", reference_frame: "iris::base_link", wrench: { force: { x: ""$1"", y: ""$2"", z: ""$3""},torque: { x: ""$4"", y: ""$5"", z: ""$6"" } }, start_time: 0, duration: -1 }"

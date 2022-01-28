@@ -1,0 +1,3 @@
+/home/undergrad/catkin_ws/src/PX4_advanced_control/controllers/plugins/build/CMakeFiles/rebuild_cache.dir
+/home/undergrad/catkin_ws/src/PX4_advanced_control/controllers/plugins/build/CMakeFiles/edit_cache.dir
+/home/undergrad/catkin_ws/src/PX4_advanced_control/controllers/plugins/build/CMakeFiles/ChangeTargetVisual.dir
