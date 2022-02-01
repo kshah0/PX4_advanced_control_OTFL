@@ -20,3 +20,44 @@ To see which versions you are running, `roscd <pkg>` and run `git branch -a`. If
 Use `sitl_gazebo.launch` to  test the controller in Gazebo. A seperate terminal will launch, which we use to command the drone. The specified commands are found in the `base_cmd_line` and `advanced_cmd_line` files. 
 
 For experiments, we first launch `offboard.launch` to initialize the communication with the vehicle and then launch `cmd_line.launch` in a seperate termianl. The launch files are seperated, because we want to use two different terminals when ssh'ing to the drone's onboard computer.
+
+## Kush & Nick's OTFL Additions
+**External Forces & Moments**
+While the simulation is running, you can apply forces and moments to the vehicle via the command line. These disturbances are step signals rather than impulse signals, such that they can be interpreted as a change in simulation dynamics. Make sure you are in the `PX4_advanced_control_OTFL/controllers/src` directory and run the following command to impart step forces and moments:
+```
+./disturbance.sh Fx Fy Fz Mx My Mz
+```
+Replace Fx, Fy, Fz with force values in units of Newtons and Mx, My, Mz with moment values in units of Netwon-meters. If the permissions of the shell script are not properly set, try the following command: `chmod +x disturbance.sh`
+
+**Changing Mass/Inertia Properties**
+We have configured `main_control.py` to increment the mass/inertia of the drone through the course of the simulation. The following details the process through which we implemented this capability.
+1. Add the following to your python script: `from gazebo_msgs.srv import SetLinkProperties, GetLinkProperties`
+2. Create a ServiceProxy to set link properties: `setLP_client = rospy.ServiceProxy("/gazebo/set_link_properties", SetLinkProperties)`
+3. Create another ServiceProxy to get the link properties: `getLP_client = rospy.ServiceProxy("/gazebo/get_link_properties", GetLinkProperties)`
+4. Use the following command to change the properties of a specified link: 
+```
+setLP_response = setLP_client("link_name", center_of_mass, gravity_mode, mass, ixx, ixy, ixz, iyy, iyz, izz)
+```
+The inputs to the function are the parameters of the SetLinkProperties Service (see https://docs.ros.org/en/diamondback/api/gazebo/html/srv/SetLinkProperties.html)
+5. Usually you do not change all the properties of a given link, so it is useful to get the current properties of the link and apply those to setLP_client. To get the current link properties:
+```
+LP = getLP_client("link_name")
+```
+**Navigation State**
+We have added navigtion state information to `base_controller.py`. This can be used by the OFTL algorithm and `main_control.py`. In `main_control.py` it can be accessed using the following:
+```
+# True current position
+OffboardControl.curr_position
+# True current velocity
+OffboardControl.curr_velocity
+# True current acceleration
+OffboardControl.curr_acceleration
+# True current angular acceleration
+OffboardControl.curr_angular_acceleration
+# Current euler angle (rad) of the drone x<->roll, y<->pitch, z<->yaw
+OffboardControl.curr_orientation
+# True current body rates
+OffboardControl.curr_body_rates
+# True current euler rates
+OffboardControl.curr_euler_rates
+```
